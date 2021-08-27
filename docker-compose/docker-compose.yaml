@@ -4,7 +4,7 @@ volumes:
    tiledesk-datadb:
 services:
   dashboard:
-   image: tiledesk/tiledesk-dashboard
+   image: tiledesk/tiledesk-dashboard:2.2.10-rc.10
    container_name: tiledesk-dashboard 
    environment: 
       - FEATURES_TOKEN=NAT:T-DEV:T
@@ -29,7 +29,7 @@ services:
       - "4500:80" #use expose if you want to block external access
 
   webwidget:
-   image: chat21/chat21-web-widget:latest
+   image: chat21/chat21-web-widget:5.0.17-rc.3
    container_name: chat21-web-widget  
    ports: 
       - "4200:80" # specify port forewarding
@@ -37,8 +37,7 @@ services:
       - CHAT21_ENGINE=mqtt
       - MQTT_APPID=tilechat
       - PUSH_ENGINE=none
-      - TENANT=tilechat
-      - LOG_LEVEL=2
+      - LOG_LEVEL=info
       - FILE_UPLOAD_ACCEPT=*/*
       - "MQTT_ENDPOINT=${EXTERNAL_MQTT_BASE_URL}/mqws/ws"
       - "MQTT_APIENDPOINT=${EXTERNAL_BASE_URL}/chatapi/api"
@@ -49,6 +48,7 @@ services:
       - FIREBASE_PROJECT_ID
       - FIREBASE_STORAGEBUCKET
       - FIREBASE_MESSAGINGSENDERID
+      - FIREBASE_TENANT=tilechat
       - UPLOAD_ENGINE=native
       - "API_URL=${EXTERNAL_BASE_URL}/api/"
       - "TRANSLATIONS_URL=${EXTERNAL_BASE_URL}/api/"
@@ -56,7 +56,7 @@ services:
       - "API_BASEIMAGE_URL=${EXTERNAL_BASE_URL}/api/"
 
   ionic:
-   image: chat21/chat21-ionic:latest
+   image: chat21/chat21-ionic:3.0.49-beta
    container_name: chat21-ionic
    ports:
       - "8080:80" #use expose if you want to block external access   
@@ -65,8 +65,7 @@ services:
       - API_BASEIMAGE_URL=/api/
       - API_URL=/api/
       - PUSH_ENGINE=none
-      - TENANT=tilechat
-      - LOG_LEVEL=2
+      - LOG_LEVEL=info
       - FILE_UPLOAD_ACCEPT=*/*
       - CHAT21_ENGINE=mqtt
       - MQTT_APPID=tilechat
@@ -79,7 +78,8 @@ services:
       - FIREBASE_DATABASEURL
       - FIREBASE_PROJECT_ID
       - FIREBASE_STORAGEBUCKET
-      - FIREBASE_MESSAGINGSENDERID 
+      - FIREBASE_MESSAGINGSENDERID
+      - FIREBASE_TENANT=tilechat
   proxy:
     image: tiledesk/tiledesk-docker-proxy
     container_name: tiledesk-docker-proxy   
@@ -94,7 +94,7 @@ services:
     command: [nginx-debug, '-g', 'daemon off;']
     
   server:
-    image: tiledesk/tiledesk-server
+    image: tiledesk/tiledesk-server:2.1.40.16
     container_name: tiledesk-server
     restart: always       
     environment: 
@@ -126,7 +126,7 @@ services:
       - "3000:3000"
 
   chat21httpserver:
-    image: chat21/chat21-http-server
+    image: chat21/chat21-http-server:v-docker0.1.15
     container_name: chat21httpserver
     restart: always    
     environment: 
@@ -142,7 +142,7 @@ services:
       - "8004:8004"
 
   chat21server:
-    image: chat21/chat21-server
+    image: chat21/chat21-server:0.1.14
     container_name: chat21server
     restart: always
     environment: 
