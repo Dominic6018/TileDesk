@@ -249,7 +249,47 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "tiledesk.fullname" . }}-config
-                  key: CACHE_REDIS_HOST  
+                  key: CACHE_REDIS_HOST
+            - name: REQUEST_HISTORY_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: REQUEST_HISTORY_ENABLED  
+            - name: ACTIVITY_HISTORY_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: ACTIVITY_HISTORY_ENABLED
+            - name: EMAIL_NOTIFICATION_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_NOTIFICATION_ENABLED
+            - name: GEO_SERVICE_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: GEO_SERVICE_ENABLED
+            - name: ALLOW_REOPEN_CHAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: ALLOW_REOPEN_CHAT   
+            - name: JOB_WORKER_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: JOB_WORKER_ENABLED   
+            - name: QUEUE_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: QUEUE_ENABLED      
+            - name: CLOUDAMQP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CLOUDAMQP_URL                                  
             # - name: CACHE_REDIS_PASSWORD
             #   valueFrom:
             #     configMapKeyRef:
@@ -274,7 +314,7 @@ spec:
               path: /
               port: server-http
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.server.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

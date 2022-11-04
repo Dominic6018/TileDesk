@@ -1,0 +1,313 @@
+{{- if .Values.server.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "tiledesk.fullname" . }}-serverworker
+  labels: {{ include "tiledesk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+spec:  
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels: {{ include "tiledesk.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "tiledesk.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.serverworker.image.repository }}:{{ .Values.serverworker.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.serverworker.image.pullPolicy }}
+          env:   
+            - name: WS_SERVER_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: WS_SERVER_PATH
+            - name: CHAT21_JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CHAT21_JWT_SECRET 
+            - name: FIREBASE_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}
+                  key: firebase-privatekey
+            - name: FIREBASE_CLIENT_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: FIREBASE_CLIENT_EMAIL
+            - name: FIREBASE_PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: FIREBASE_PROJECT_ID
+            - name: CHAT21_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CHAT21_ENABLED
+            - name: CHAT21_ENGINE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CHAT21_ENGINE                  
+            - name: CHAT21_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CHAT21_URL_INTERNAL
+            - name: CHAT21_APPID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CHAT21_APPID
+            - name: CHAT21_ADMIN_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CHAT21_ADMIN_TOKEN          
+            - name: EMAIL_BASEURL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_BASEURL
+            - name: EMAIL_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_ENABLED
+            - name: EMAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_HOST
+            - name: EMAIL_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_USERNAME
+            - name: EMAIL_SECURE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_SECURE
+            - name: EMAIL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_PORT
+            - name: EMAIL_FROM_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_FROM_ADDRESS
+            # - name: EMAIL_BCC
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_BCC    
+            # - name: EMAIL_ASSIGN_REQUEST_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_ASSIGN_REQUEST_HTML_TEMPLATE
+            # - name: EMAIL_ASSIGN_MESSAGE_EMAIL_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_ASSIGN_MESSAGE_EMAIL_HTML_TEMPLATE
+            # - name: EMAIL_POOLED_REQUEST_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_POOLED_REQUEST_HTML_TEMPLATE
+            # - name: EMAIL_POOLED_MESSAGE_EMAIL_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_POOLED_MESSAGE_EMAIL_HTML_TEMPLATE
+            # - name: EMAIL_NEW_MESSAGE_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_NEW_MESSAGE_HTML_TEMPLATE
+            # - name: EMAIL_TICKET_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_TICKET_HTML_TEMPLATE
+            # - name: EMAIL_RESET_PASSWORD_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_RESET_PASSWORD_HTML_TEMPLATE
+            # - name: EMAIL_PASSWORD_CHANGED_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_PASSWORD_CHANGED_HTML_TEMPLATE
+            # - name: EMAIL_NEWUSER_INVITED_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_NEWUSER_INVITED_HTML_TEMPLATE
+            # - name: EMAIL_VERIFY_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_VERIFY_HTML_TEMPLATE
+            # - name: EMAIL_SEND_TRANSCRIPT_HTML_TEMPLATE
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: EMAIL_SEND_TRANSCRIPT_HTML_TEMPLATE                          
+            - name: EMAIL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_PASSWORD    
+            - name: SUPER_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: SUPER_PASSWORD
+            - name: WIDGET_LOCATION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: WIDGET_LOCATION
+            - name: WIDGET_TEST_LOCATION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: WIDGET_TEST_LOCATION                  
+            - name: MONGODB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: MONGODB_URI
+            - name: MONGODB_LOGS_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: MONGODB_LOGS_URI
+            - name: RESTHOOK_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: RESTHOOK_ENABLED
+            - name: WEBHOOK_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: WEBHOOK_ORIGIN
+            - name: SYNC_CHAT21_GROUPS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: SYNC_CHAT21_GROUPS   
+            - name: CREATE_INITIAL_DATA
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CREATE_INITIAL_DATA
+            - name: CACHE_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CACHE_ENABLED 
+            - name: CACHE_ENGINE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CACHE_ENGINE      
+            - name: CACHE_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CACHE_REDIS_PORT    
+            - name: CACHE_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CACHE_REDIS_HOST
+            - name: REQUEST_HISTORY_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: REQUEST_HISTORY_ENABLED  
+            - name: ACTIVITY_HISTORY_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: ACTIVITY_HISTORY_ENABLED
+            - name: EMAIL_NOTIFICATION_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: EMAIL_NOTIFICATION_ENABLED
+            - name: GEO_SERVICE_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: GEO_SERVICE_ENABLED
+            - name: ALLOW_REOPEN_CHAT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: ALLOW_REOPEN_CHAT   
+            - name: JOB_WORKER_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: JOB_WORKER_ENABLED 
+            - name: QUEUE_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: QUEUE_ENABLED      
+            - name: CLOUDAMQP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "tiledesk.fullname" . }}-config
+                  key: CLOUDAMQP_URL             
+            # - name: CACHE_REDIS_PASSWORD
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: {{ include "tiledesk.fullname" . }}-config
+            #       key: CACHE_REDIS_PASSWORD                                       
+            - name: LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tiledesk-license
+                  key: licensekey
+                  optional: true                   
+          resources:
+            {{- toYaml .Values.serverworker.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: OnFailure
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end -}}
