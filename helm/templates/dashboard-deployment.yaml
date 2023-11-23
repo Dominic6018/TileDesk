@@ -160,11 +160,6 @@ spec:
                 configMapKeyRef:
                   name: {{ include "tiledesk.fullname" . }}-config
                   key: FIREBASE_VAPID
-            - name: CHAT_STORAGE_PREFIX
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "tiledesk.fullname" . }}-config
-                  key: CHAT_STORAGE_PREFIX
             - name: COMMUNITY_TEMPLATES_URL
               valueFrom:
                 configMapKeyRef:
